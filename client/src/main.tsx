@@ -8,12 +8,22 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 // Import the main app component
 import App from "./App";
 
+// Import des pages
+
+import PageInscription from "./pages/PageInscription";
+
 /* ************************************************************************* */
 
 const router = createBrowserRouter([
   {
     element: <App />,
     path: "/",
+    children: [
+      {
+        path: "/auth",
+        element: <PageInscription />,
+      },
+    ],
   },
 ]);
 
