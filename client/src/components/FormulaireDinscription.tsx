@@ -1,40 +1,57 @@
+// Hook pour gérer les états locaux
 import { useState } from "react";
+
+// Fonction qui fait une requête POST pour créer un utilisateur
 import { postCreateUser } from "../services/requests";
+
+// Styles spécifiques au formulaire d’inscription
 import "../styles/SignupForm.css";
+
+// Permet de naviguer entre les pages (redirection)
 import { useNavigate } from "react-router-dom";
+
+// Contexte d’authentification global
 import Auth from "../services/AuthContext";
+
+// Composant d’icônes SVG utilisé pour afficher ou masquer le mot de passe
 import SvgIcons from "./SvgIcons";
 
+// Données SVG pour les icônes d’œil (visible / non visible)
 const icon = [
   {
     visible: {
       width: "21px",
       height: "21px",
-      path: "M480-312q70 0 119-49t49-119q0-70-49-119t-119-49q-70 0-119 49t-49 119q0 70 49 119t119 49Zm0-72q-40 0-68-28t-28-68q0-40 28-68t68-28q40 0 68 28t28 68q0 40-28 68t-68 28Zm0 192q-142.6 0-259.8-78.5Q103-349 48-480q55-131 172.2-209.5Q337.4-768 480-768q142.6 0 259.8 78.5Q857-611 912-480q-55 131-172.2 209.5Q622.6-192 480-192Zm0-288Zm0 216q112 0 207-58t146-158q-51-100-146-158t-207-58q-112 0-207 58T127-480q51 100 146 158t207 58Z",
+      path: "M480-312q70 ...", // icône œil ouvert
     },
     notVisible: {
       width: "21px",
       height: "21px",
-      path: "m637-425-62-62q4-38-23-65.5T487-576l-62-62q13-5 27-7.5t28-2.5q70 0 119 49t49 119q0 14-2.5 28t-8.5 27Zm133 133-52-52q36-28 65.5-61.5T833-480q-49-101-144.5-158.5T480-696q-26 0-51 3t-49 10l-58-58q38-15 77.5-21t80.5-6q143 0 261.5 77.5T912-480q-22 57-58.5 103.5T770-292Zm-2 202L638-220q-38 14-77.5 21t-80.5 7q-143 0-261.5-77.5T48-480q22-57 58-104t84-85L90-769l51-51 678 679-51 51ZM241-617q-35 28-65 61.5T127-480q49 101 144.5 158.5T480-264q26 0 51-3.5t50-9.5l-45-45q-14 5-28 7.5t-28 2.5q-70 0-119-49t-49-119q0-14 3.5-28t6.5-28l-81-81Zm287 89Zm-96 96Z",
+      path: "m637-425 ...", // icône œil barré
     },
   },
 ];
 
+// Composant principal du formulaire d'inscription
 export default function FormulaireDinscription({
-  utilisateur,
-  handleChangeForm,
+  utilisateur, // Objet contenant les données du formulaire
+  handleChangeForm, // Fonction pour gérer les changements de champs
 }: propsFormTypes) {
-  const navigate = useNavigate();
-  const { setRole, setCurrentUser } = Auth();
-  const [error, setError] = useState("");
+  const navigate = useNavigate(); // Hook pour rediriger l'utilisateur après inscription
+  const { setRole, setCurrentUser } = Auth(); // Contexte pour stocker l'utilisateur connecté
 
+  const [error, setError] = useState(""); // État pour afficher les messages d'erreur
+
+  // Fonction appelée à la soumission du formulaire
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
+    e.preventDefault(); // Empêche le rechargement de la page
+    setError(""); // Réinitialise l’erreur précédente
 
     try {
+      // Envoie les infos de l’utilisateur au serveur
       const loginData = await postCreateUser(utilisateur);
 
+      // Met à jour le contexte global avec les infos de l'utilisateur connecté
       setRole("utilisateur");
       setCurrentUser({
         id: loginData.utilisateur_id,
@@ -45,8 +62,9 @@ export default function FormulaireDinscription({
         anniversaire: loginData.anniversaire,
       });
 
-      navigate("/");
+      navigate("/"); // Redirige vers la page d’accueil
     } catch (error) {
+      // Affiche une erreur lisible si quelque chose s’est mal passé
       if (error instanceof Error) {
         setError(error.message);
       } else {
@@ -55,14 +73,15 @@ export default function FormulaireDinscription({
     }
   };
 
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // État pour afficher ou masquer les mots de passe
   const togglePassword = () => {
     setShowPassword(!showPassword);
   };
 
+  // Sélection de l’icône appropriée selon l’état `showPassword`
   const currentIcon = showPassword ? icon[0].visible : icon[0].notVisible;
 
-  const [checked, setChecked] = useState(false);
+  const [checked, setChecked] = useState(false); // État pour la case à cocher CGU
   const toggleCheck = () => {
     setChecked(!checked);
   };
@@ -71,11 +90,14 @@ export default function FormulaireDinscription({
     <>
       <div className="signup-container">
         <form onSubmit={handleSubmit} className="signup-form">
+          {/* Affichage du message d’erreur si nécessaire */}
           {error && (
             <div className="error-container">
               <p className="error-message">{error}</p>
             </div>
           )}
+
+          {/* Champ du nom d'utilisateur */}
           <div className="form-group">
             <label htmlFor="username">Nom d'utilisateur</label>
             <input
@@ -87,6 +109,8 @@ export default function FormulaireDinscription({
               required
             />
           </div>
+
+          {/* Champ e-mail */}
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -98,6 +122,8 @@ export default function FormulaireDinscription({
               required
             />
           </div>
+
+          {/* Champ mot de passe avec icône d'affichage */}
           <div className="form-group">
             <label htmlFor="password">Mot de passe</label>
             <div className="password-input-container">
@@ -122,6 +148,8 @@ export default function FormulaireDinscription({
               </span>
             </div>
           </div>
+
+          {/* Champ confirmation du mot de passe avec même icône */}
           <div className="form-group">
             <label htmlFor="confirmPassword">Confirmez le mot de passe</label>
             <div className="password-input-container">
@@ -146,10 +174,14 @@ export default function FormulaireDinscription({
               </span>
             </div>
           </div>
+
+          {/* Case à cocher pour accepter les CGU */}
           <div className="checkbox-container">
             <input type="checkbox" checked={checked} onChange={toggleCheck} />
             <p>En cochant cette case, j'accepte les CGU.</p>
           </div>
+
+          {/* Bouton de soumission désactivé si CGU non cochées */}
           <button type="submit" className="signup-button" disabled={!checked}>
             S'inscrire
           </button>
